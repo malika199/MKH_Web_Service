@@ -1,0 +1,26 @@
+[
+  { "ecole": [{ "chaise": [] }] },
+  { "classe": [{ "professeur": [] }, { "élève": [] }] },
+  { "basee dee": [] },
+  {
+    "basee__dee": [
+      {
+        "table_1": [
+          {
+            "first_name": "malika",
+            "last_name": "derfoufi",
+            "number": "0756394503",
+            "email": "malika.derfoufii@gmail.com"
+          },
+          {
+            "first_name": "jihane",
+            "last_name": "derfoufi",
+            "number": "0756394503",
+            "email": "jihane.derfoufii@gmail.com"
+          }
+        ]
+      },
+      { "catégorie": [] }
+    ]
+  }
+]

@@ -1,26 +1,29 @@
 [
   { "ecole": [{ "chaise": [] }] },
-  { "classe": [{ "professeur": [] }, { "élève": [] }] },
-  { "basee dee": [] },
   {
-    "basee__dee": [
+    "classe": [
       {
-        "table_1": [
+        "professeur": [
           {
-            "first_name": "malika",
-            "last_name": "derfoufi",
-            "number": "0756394503",
-            "email": "malika.derfoufii@gmail.com"
+            "first_name": "rafik",
+            "last_name": "badr",
+            "number": "079495031",
+            "email": "RAFF.derfoufii@gmail.com"
           },
           {
-            "first_name": "jihane",
-            "last_name": "derfoufi",
-            "number": "0756394503",
-            "email": "jihane.derfoufii@gmail.com"
+            "first_name": "lwlittttaa",
+            "last_name": "badr",
+            "number": "079495031",
+            "email": "RAFF.derfoufii@gmail.com",
+            "id": "7976382dbb029c9afa8c7ecacccd3f18ef2617a1"
           }
         ]
       },
-      { "catégorie": [] }
+      { "élève": [] }
     ]
-  }
+  },
+  { "basee dee": [] },
+  { "basee__dee": [{ "catégorie": [] }, { "table_2": [] }] },
+  { "base_______DD": [] },
+  { "hello": [] }
 ]

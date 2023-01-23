@@ -1,6 +1,7 @@
 const http = require("http");
 const fs = require("fs");
 const data = require("./db.json");
+const crypto = require("crypto");
 
 const port = 8000;
 const hostname = "localhost";
@@ -40,28 +41,28 @@ function reqHandler(req, res) {
   const isPostMethod = method === "POST";
   const isPutMethod = method === "PUT";
   const isDeleteMethod = method === "DELETE";
-  console.log("url ::", url);
+  // console.log("url ::", url);
   const urlSplited = url.split("/");
 
-  console.log("urlSplited", urlSplited);
+  // console.log("urlSplited", urlSplited);
   const db = urlSplited[1];
-  console.log("db  ", db);
+  // console.log("db  ", db);
 
   const selectedDb = data?.find((el) => Object.keys(el)[0] == db)?.[db] || [];
 
   //  const selecteDTable =  selectedDb?.find((el) => Object.keys(el)[0] == tble)?.[tble] || [];
 
-  console.log(" selectedDb ", selectedDb);
+  // console.log(" selectedDb ", selectedDb);
   const route = urlSplited[2];
-  console.log("route  ", route);
+  // console.log("route  ", route);
 
   const selectedRoute =
     selectedDb?.find((el) => Object.keys(el)?.[0] == route)?.[route] || [];
 
-  console.log("selectedRoute", selectedRoute);
+  // console.log("selectedRoute", selectedRoute);
   const id = urlSplited[3];
   const selectedProperty = selectedRoute?.find((el) => el.id == id);
-  console.log(" selectedProperty : ", selectedProperty);
+  // console.log(" selectedProperty : ", selectedProperty);
   /**
    * Sequence of conditions
    * No dataBase => GET all databases, POST create DB, PUT edit DB, DELETE delete DB (if DB name provided)
@@ -79,8 +80,6 @@ function reqHandler(req, res) {
       sendEnum(res, "DataBases", data);
     } else if (isPostMethod) {
       createDataBase(req, res);
-      setHeader(res, 200);
-      res.end('{ "message": "Database created successfully"}');
     } else if (isPutMethod) {
       updateDataBase(data, req, res);
       setHeader(res, 200);
@@ -90,29 +89,24 @@ function reqHandler(req, res) {
       setHeader(res, 200);
       res.end('{ "message": "Database deleted successfully"}');
     }
-  } else if (db.length !== 0 && isDefined(route) ) {
+  } else if (db.length !== 0 && isDefined(route)) {
     if (isPostMethod) {
       createObject(db, route, req, res);
       setHeader(res, 200);
       res.end('{ "message": "Object created successfully"}');
-    } 
+    }
   } else {
-    console.log("route", route);
-    if ( db.length !== 0 && !isDefined(route) ) {
+    // console.log("route", route);
+    if (db.length !== 0 && !isDefined(route)) {
       if (isGetMethod) {
         setHeader(res, 200);
         sendEnum(res, "Routes", selectedDb);
       } else if (isPostMethod) {
         createTable(db, req, res);
-        setHeader(res, 200);
-        res.end('{ "message": "Table created successfully"}');
       } else if (isPutMethod) {
         setHeader(res, 200);
       } else if (isDeleteMethod) {
-          deleteTable(db, req, res)
-          setHeader(res, 200);
-          res.end('{ "message": "Table deleted successfully"}');
-       
+        deleteTable(db, req, res);
       }
     } else {
       if (isGetMethod) {
@@ -150,12 +144,27 @@ function createDataBase(req, res) {
   req.on("end", function () {
     let content;
     body = JSON.parse(Buffer.concat(body).toString());
+
+    const alreadyExist = data.some(
+      (item) => Object.keys(item)[0] === body.name
+    );
+
+    console.log("alreadyExist", alreadyExist);
+
     if (isDefined(body.name)) {
-      content = {
-        [body.name]: isDefined(body.tables) ? body.tables : [],
-      };
-      data.push(content);
-      writeFile(data);
+      if (!alreadyExist) {
+        console.log("body.tables", body.tables);
+        content = {
+          [body.name]: isDefined(body.tables) ? body.tables : [],
+        };
+        data.push(content);
+        writeFile(data);
+        setHeader(res, 200);
+        res.end('{ "message": "Database created successfully"}');
+      } else {
+        setHeader(res, 404);
+        res.end('{ "message": "database already exist "}');
+      }
     } else {
       setHeader(res, 404);
       res.end('{ "message": "Must provide a database name"}');
@@ -200,13 +209,23 @@ function createTable(dataBaseName, req, res) {
       content = {
         [body.name]: isDefined(body.properties) ? body.properties : [],
       };
-      console.log("bcontent :  ", body);
-
       for (let i = 0; i < data.length; i++) {
         console.log("data", data);
         if (Object.keys(data[i])[0] === dataBaseName) {
-          data[i][dataBaseName].push(content);
-          console.log("dataBaseName", dataBaseName);
+          // console.log('data[i])[0]',data[i][dataBaseName])
+          const alreadyExist = data[i][dataBaseName].some(
+            (item) => Object.keys(item)[0] === body.name
+          );
+          console.log("alreadyExist", alreadyExist);
+          if (!alreadyExist) {
+            data[i][dataBaseName].push(content);
+            console.log("dataBaseName", dataBaseName);
+            setHeader(res, 200);
+            res.end('{ "message": "Table created successfully"}');
+          } else {
+            setHeader(res, 404);
+            res.end('{ "message": "table existe already"}');
+          }
         }
       }
       writeFile(data);
@@ -217,15 +236,21 @@ function createTable(dataBaseName, req, res) {
   });
 }
 
+// console.log(generateUniqueId());
 function createObject(dataBaseName, table, req, res) {
   console.log("ooooooooooo", { dataBaseName, table });
   let body = [];
+  let id = crypto.randomBytes(20).toString("hex");
+
   req.on("data", function (data) {
     body.push(data);
   });
   req.on("end", function () {
     let BDD;
     body = JSON.parse(Buffer.concat(body).toString());
+    body.id = id;
+    // console.log('bodyyyyyyyyyyyyyyyyyyyyyyyyyyy',body)
+
     if (isDefined(body)) {
       data.map((el) => console.log("test ", el));
       for (let i = 0; i < data.length; i++) {
@@ -247,6 +272,20 @@ function createObject(dataBaseName, table, req, res) {
     }
   });
 }
+function removeElement(data, keyToRemove) {
+  for (let i = 0; i < data.length; i++) {
+    if (typeof data[i] === "object") {
+      for (let key in data[i]) {
+        if (key === keyToRemove) {
+          delete data[i][key];
+        } else if (typeof data[i][key] === "object") {
+          removeElement(data[i][key], keyToRemove);
+        }
+      }
+    }
+  }
+}
+
 function deleteTable(dataBase, req, res) {
   let body = [];
   req.on("data", function (data) {
@@ -254,14 +293,57 @@ function deleteTable(dataBase, req, res) {
   });
   req.on("end", function () {
     body = JSON.parse(Buffer.concat(body).toString());
-    if (isDefined(body.name)) {
-      const filtredDataBase = dataBase.filter(
-        (el) => Object.keys(el)[0] !== body.name
-      );
-      writeFile(filtredDataBase);
-    } else {
-      setHeader(res, 404);
-      res.end('{ "message": "Must provide a database name"}');
-    }
+    let dataToPush = data.map((item) => {
+      console.log(item);
+      if (Object.keys(item)[0] == dataBase) {
+        let BDD = item[dataBase];
+        item[Object.keys(item)] = BDD.filter(
+          (el) => Object.keys(el)[0] !== body.name
+        );
+        setHeader(res, 200);
+        res.end('{ "message": "Table deleted successfully"}');
+      } else {
+        setHeader(res, 404);
+        res.end('{ "message": "Must provide a database name"}');
+      }
+      return item;
+    });
+    console.log("dataToPush", dataToPush);
+    writeFile(dataToPush);
   });
 }
+
+function deleteDocument(dataBase, table, req, res) {
+  let body = [];
+  req.on("data", function (data) {
+    body.push(data);
+  });
+  req.on("end", function () {
+    body = JSON.parse(Buffer.concat(body).toString());
+    let dataToPush = data.map((item) => {
+      console.log(item);
+      if (Object.keys(item)[0] == dataBase) {
+        let BDD = item[dataBase];
+
+        BDD.map((el) => {
+          item[Object.keys(item)] = BDD.filter(
+            (el) => Object.keys(el)[0] !== body.name
+          
+            );
+           
+            setHeader(res, 200);
+            res.end('{ "message": "Table deleted successfully"}');
+      
+          });
+      } else {
+        setHeader(res, 404);
+        res.end('{ "message": "Must provide a database name"}');
+      }
+      return item;
+    });
+    console.log("dataToPush", dataToPush);
+    writeFile(dataToPush);
+  });
+}
+
+// à faire  delete  object

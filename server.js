@@ -50,7 +50,7 @@ function reqHandler(req, res) {
 
   const selectedDb = data?.find((el) => Object.keys(el)[0] == db)?.[db] || [];
 
-  //  const selecteDTable =  selectedDb?.find((el) => Object.keys(el)[0] == tble)?.[tble] || [];
+  const selecteDTable =  selectedDb?.find((el) => Object.keys(el)[0] == tble)?.[tble] || [];
 
   // console.log(" selectedDb ", selectedDb);
   const route = urlSplited[2];
@@ -94,6 +94,8 @@ function reqHandler(req, res) {
       createObject(db, route, req, res);
       setHeader(res, 200);
       res.end('{ "message": "Object created successfully"}');
+    } else if (isDeleteMethod) {
+      deleteObject(db, route, req, res);
     }
   } else {
     // console.log("route", route);
@@ -236,7 +238,6 @@ function createTable(dataBaseName, req, res) {
   });
 }
 
-// console.log(generateUniqueId());
 function createObject(dataBaseName, table, req, res) {
   console.log("ooooooooooo", { dataBaseName, table });
   let body = [];
@@ -249,8 +250,6 @@ function createObject(dataBaseName, table, req, res) {
     let BDD;
     body = JSON.parse(Buffer.concat(body).toString());
     body.id = id;
-    // console.log('bodyyyyyyyyyyyyyyyyyyyyyyyyyyy',body)
-
     if (isDefined(body)) {
       data.map((el) => console.log("test ", el));
       for (let i = 0; i < data.length; i++) {
@@ -271,19 +270,6 @@ function createObject(dataBaseName, table, req, res) {
       res.end('{ "message": "Must provide a database name"}');
     }
   });
-}
-function removeElement(data, keyToRemove) {
-  for (let i = 0; i < data.length; i++) {
-    if (typeof data[i] === "object") {
-      for (let key in data[i]) {
-        if (key === keyToRemove) {
-          delete data[i][key];
-        } else if (typeof data[i][key] === "object") {
-          removeElement(data[i][key], keyToRemove);
-        }
-      }
-    }
-  }
 }
 
 function deleteTable(dataBase, req, res) {
@@ -313,37 +299,35 @@ function deleteTable(dataBase, req, res) {
   });
 }
 
-function deleteDocument(dataBase, table, req, res) {
+function deleteObject(dataBaseName, table, req, res) {
   let body = [];
   req.on("data", function (data) {
     body.push(data);
   });
   req.on("end", function () {
+    let BDD;
     body = JSON.parse(Buffer.concat(body).toString());
-    let dataToPush = data.map((item) => {
-      console.log(item);
-      if (Object.keys(item)[0] == dataBase) {
-        let BDD = item[dataBase];
-
-        BDD.map((el) => {
-          item[Object.keys(item)] = BDD.filter(
-            (el) => Object.keys(el)[0] !== body.name
-          
-            );
-           
-            setHeader(res, 200);
-            res.end('{ "message": "Table deleted successfully"}');
-      
-          });
-      } else {
-        setHeader(res, 404);
-        res.end('{ "message": "Must provide a database name"}');
+    if (isDefined(body)) {
+      data.map((el) => console.log("test ", el));
+      for (let i = 0; i < data.length; i++) {
+        if (Object.keys(data[i])[0] === dataBaseName) {
+          BDD = data[i][dataBaseName];
+          for (let index = 0; index < BDD.length; index++) {
+            if (Object.keys(BDD[index]) == table) {
+              BDD[index][table] = BDD[index][table].filter(
+                (obj) => obj.id !== body.id
+              );
+            }
+          }
+          writeFile(data);
+          setHeader(res, 200);
+          res.end('{ "message": "Object deleted successfully"}');
+        }
       }
-      return item;
-    });
-    console.log("dataToPush", dataToPush);
-    writeFile(dataToPush);
+    } else {
+      setHeader(res, 404);
+      res.end('{ "message": "Must provide a database name"}');
+    }
   });
 }
 
-// à faire  delete  object

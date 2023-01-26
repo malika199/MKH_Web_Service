@@ -1,16 +1,7 @@
 [
   {
     "basee__dee": [
-      {
-        "categorie": [
-          {
-            "name": "bw8",
-            "libelle": "voiture noir sport",
-            "prix": "51000",
-            "id": "10bccdef7cc385fff766c4b47333e4bdbb637f29"
-          }
-        ]
-      },
+      { "categorie": [] },
       {
         "table_2": [
           {

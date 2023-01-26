@@ -1,29 +1,7 @@
 [
   { "ecole": { "termomix": [] } },
   { "classe": { "fabien": [] } },
-  {
-    "basee__dee": [
-      {
-        "catégorie": [
-          {
-            "first_name": "lwlittttaa",
-            "last_name": "badr",
-            "number": "079495031",
-            "email": "RAFF.derfoufii@gmail.com",
-            "id": "7976382aqqb029c9afa8c7ecacccd3f18ef2617a1"
-          },
-          {
-            "first_name": "lwlittttaa",
-            "last_name": "badr",
-            "number": "079495031",
-            "email": "RAFF.derfoufii@gmail.com",
-            "id": "7111382dbb029c9afa8c7ecacccd3f18ef2617a1"
-          }
-        ]
-      },
-      { "table_2": [] }
-    ]
-  },
+  { "basee__dee": [{ "categorie": [] }, { "table_2": [] }] },
   { "base_______DD": [] },
   { "hello": { "termomix": [] } }
 ]

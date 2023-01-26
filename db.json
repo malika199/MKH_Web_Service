@@ -1,38 +1,6 @@
 [
-  { "ecole": [{ "chaise": [] }] },
-  {
-    "classe": [
-      {
-        "professeur": [
-          {
-            "first_name": "lwlittttaa",
-            "last_name": "badr",
-            "number": "079495031",
-            "email": "RAFF.derfoufii@gmail.com",
-            "id": "7976382dbb029c9afa8c7ecacccd3f18ef2617a1"
-          },
-          {
-            "first_name": "lwlittttaa",
-            "last_name": "badr",
-            "number": "079495031",
-            "email": "RAFF.derfoufii@gmail.com",
-            "id": "7976382dbb029c9af1"
-          }
-        ]
-      },
-      {
-        "élève": [
-          {
-            "first_name": "assss",
-            "last_name": "badr",
-            "number": "079495031",
-            "email": "RAFF.derfoufii@gmail.com",
-            "id": "7976382dbb030c9afa8c7ecacccd3f18ef2617a1"
-          }
-        ]
-      }
-    ]
-  },
+  { "ecole": { "termomix": [] } },
+  { "classe": { "fabien": [] } },
   {
     "basee__dee": [
       {
@@ -57,5 +25,5 @@
     ]
   },
   { "base_______DD": [] },
-  { "hello": [] }
+  { "hello": { "termomix": [] } }
 ]

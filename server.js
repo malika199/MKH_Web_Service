@@ -51,12 +51,11 @@ function reqHandler(req, res) {
    *
    */
   const selectedDb = data?.find((el) => Object.keys(el)[0] == db)?.[db] || [];
-
+  console.log('selectedDb',selectedDb)
   const route = urlSplited[2];
   // console.log("route  ", route);
-
-  const selectedRoute =
-    selectedDb?.find((el) => Object.keys(el)?.[0] == route)?.[route] || [];
+  const selectedRoute = Object.values(selectedDb)?.find((el) => Object.keys(el)?.[0] == route)?.[route] || [];
+  console.log("selectedRoute  ", selectedRoute);
 
   const id = urlSplited[3];
   const selectedProperty = selectedRoute?.find((el) => el.id == id);
@@ -79,7 +78,7 @@ function reqHandler(req, res) {
     } else if (isPostMethod) {
       createDataBase(req, res);
     } else if (isDeleteMethod) {
-      deleteDataBase(data, req, res);
+      deleteDataBase(db, req, res);
       setHeader(res, 200);
       res.end('{ "message": "Database deleted successfully"}');
     }
@@ -93,8 +92,6 @@ function reqHandler(req, res) {
     }else if (isGetMethod) {
       setHeader(res, 200);
       res.end(JSON.stringify(selectedRoute));
-
-      sendEnum(res, "Routes", selectedDb);
     }
   } else if (isDefined(db) && isDefined(route) && isDefined(id)) {
     if (isPutMethod) {
@@ -103,12 +100,17 @@ function reqHandler(req, res) {
     else if (isDeleteMethod) {
       deleteObject(db, route, id, req, res);
     }
+    else if (isGetMethod) {
+      setHeader(res, 200);
+      res.end(JSON.stringify(selectedProperty));
+    }
   } else {
-    if (db.length !== 0 && !isDefined(route)) {
+    if (isDefined(db)  && !isDefined(route)) {
       if (isGetMethod) {
+        // setHeader(res, 200);
+        // res.end(JSON.stringify(selectedDb));
+        // sendEnum(res, "Routes", selectedDb);
         setHeader(res, 200);
-        res.end(JSON.stringify(selectedRoute));
-
         sendEnum(res, "Routes", selectedDb);
       } else if (isPostMethod) {
         createTable(db, req, res);
@@ -117,25 +119,27 @@ function reqHandler(req, res) {
       } else if (isPutMethod) {
         updateDataBase(db, req, res);
       }
-    } else {
-      if (isGetMethod) {
-        if (!id || id == "/" || !selectedProperty) {
+    } 
+    
+    // else {
+    //   if (isGetMethod) {
+    //     if (!id || id == "/" || !selectedProperty) {
           
-          setHeader(res, 200);
-          res.end(JSON.stringify(selectedRoute));
+    //       setHeader(res, 200);
+    //       res.end(JSON.stringify(selectedRoute));
       
-        } else {
-          setHeader(res, 200);
-          res.end(JSON.stringify(selectedProperty));
-        }
-        } else if (isPostMethod) {
-          setHeader(res, 200);
-        } else if (isPutMethod) {
-          setHeader(res, 200);
-        } else if (isDeleteMethod) {
-          setHeader(res, 200);
-      }
-    }
+    //     } else {
+    //       setHeader(res, 200);
+    //       res.end(JSON.stringify(selectedProperty));
+    //     }
+    //     } else if (isPostMethod) {
+    //       setHeader(res, 200);
+    //     } else if (isPutMethod) {
+    //       setHeader(res, 200);
+    //     } else if (isDeleteMethod) {
+    //       setHeader(res, 200);
+    //   }
+    // }
   }
 }
 /**

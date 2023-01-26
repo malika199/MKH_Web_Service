@@ -1,7 +1,28 @@
 [
-  { "ecole": { "termomix": [] } },
-  { "classe": { "fabien": [] } },
-  { "basee__dee": [{ "categorie": [] }, { "table_2": [] }] },
+  {
+    "basee__dee": [
+      {
+        "categorie": [
+          {
+            "name": "bw8",
+            "libelle": "voiture noir sport",
+            "prix": "51000",
+            "id": "10bccdef7cc385fff766c4b47333e4bdbb637f29"
+          }
+        ]
+      },
+      {
+        "table_2": [
+          {
+            "name": "vello",
+            "libelle": "vélo éléctrique",
+            "prix": "51000",
+            "id": "3c565f6306a43622087999c268041f0871dc89ed"
+          }
+        ]
+      }
+    ]
+  },
   { "base_______DD": [] },
   { "hello": { "termomix": [] } }
 ]

@@ -54,15 +54,11 @@ function reqHandler(req, res) {
   console.log("selectedDb", selectedDb);
   const route = urlSplited[2];
   // console.log("route  ", route);
-  const selectedRoute =
-    Object.values(selectedDb)?.find((el) => Object.keys(el)?.[0] == route)?.[
-      route
-    ] || [];
-  console.log("selectedRoute  ", selectedRoute);
-
+  const selectedRoute = Object.values(selectedDb)?.find((el) => Object.keys(el)?.[0] == route)?.[route] || [];
   const id = urlSplited[3];
   const selectedProperty = selectedRoute?.find((el) => el.id == id);
-  console.log(" selectedProperty : ", selectedProperty);
+  const searchTerm = urlSplited[2]?.split('?')[1];
+
   /**
    * Sequence of conditions
    * No dataBase => GET all databases, POST create DB, PUT edit DB, DELETE delete DB (if DB name provided)
@@ -89,11 +85,17 @@ function reqHandler(req, res) {
     } else if (isPutMethod) {
       updateTable(db, route, req, res);
     } else if (isGetMethod) {
-      setHeader(res, 200);
-      res.end(JSON.stringify(selectedRoute));
+      if (searchTerm) {
+        searchObject(db, route, searchTerm, req, res);
+        }else{
+        setHeader(res, 200);
+        res.end(JSON.stringify(selectedRoute));
+        }
     } else if (isDeleteMethod) {
       deleteTable(db, route, req, res);
     }
+
+
   } else if (isDefined(db) && isDefined(route) && isDefined(id)) {
     if (isPutMethod) {
       updateObject(db, route, id, req, res);
@@ -482,63 +484,82 @@ function updateDataBase(dataBaseName, req, res) {
       res.end('{ "message": "Must provide a database name"}');
       return;
     }
-    const updatedData = data.filter((item) => {
-      if (Object.keys(item)[0] === dataBaseName) {
-        item[body.name] = item.dataBaseName;
-        delete item.dataBaseName;
-      }
-      return item;
-    });
-
-    console.log(updatedData);
+    
+  
+    // console.log(updatedData);
 
     const baseIndex = data.findIndex((item) =>
       item.hasOwnProperty(dataBaseName)
     );
     if (baseIndex !== -1) {
-      // data[baseIndex] = body.name;
-      data[body.name] = data[baseIndex];
-      delete data[baseIndex];
+       data[baseIndex] = content;
     }
 
     writeFile(data);
+    setHeader(res, 200);
+    res.end(
+      `{ "message": "Database updated ${dataBaseName} successfully" }`
+    );
   });
 }
 
-// function updateDataBase(dataBaseName, req, res) {
-//   let body = [];
-//   req.on("data", function (data) {
-//     body.push(data);
-//   });
-//   req.on("end", function () {
-//     // let content;
-//     try {
-//       body = JSON.parse(Buffer.concat(body).toString());
-//     } catch (err) {
-//       setHeader(res, 400);
-//       res.end('{ "message": "Invalid JSON data" }');
-//       return;
-//     }
+function updateDataBase(dataBaseName, req, res) {
+  let body = [];
+  req.on("data", function (data) {
+    body.push(data);
+  });
+  req.on("end", function () {
+    let content;
+    try {
+      body = JSON.parse(Buffer.concat(body).toString());
+    } catch (err) {
+      setHeader(res, 400);
+      res.end('{ "message": "Invalid JSON data" }');
+      return;
+    }
 
-//     if (!body.name) {
-//       setHeader(res, 404);
-//       res.end('{ "message": "Must provide a database name"}');
-//       return;
-//     }
-//     data.map((db) => {
-//       if (Object.keys(db)[0] === dataBaseName) {
-//         console.log('  data[dataBaseName]  1', Object.keys(db)[0] , body.name)
+    if (!body.name) {
+      setHeader(res, 404);
+      res.end('{ "message": "Must provide a database name"}');
+      return;
+    }
 
-//         Object.keys(db)[0] = body.name
+    content = {
+      [body.name]: body.properties || [],
+    };
 
-//         console.log('  data[dataBaseName]  ', body.name)
-//         return db;
-//       }
-//       return db;
-//     });
-//     writeFile(data);
+    data.map((db) => {
+      if (Object.keys(db)[0] === dataBaseName) {
 
-//     setHeader(res, 200);
-//     res.end(`{ "message": "Database ${dataBaseName} updated successfully " }`);
-//   });
-// }
+        Object.keys(db)[0] = body.name
+
+      }
+    });
+     
+    // writeFile(data);
+
+    setHeader(res, 200);
+    res.end(`{ "message": "Database ${dataBaseName} updated successfully " }`);
+  });
+}
+
+function searchObject(db, route, searchTerm, req, res) {
+  const rout = route.split('?')[0];
+  const selectedDb = data.find((el) => Object.keys(el)[0] == db)[db] || [];
+  const selectedRoute = Object.values(selectedDb).find((el) => Object.keys(el)[0] == rout)?.[rout] || [];
+  console.log(selectedRoute);
+  const foundProperties = selectedRoute.filter((property) => {
+    return Object.values(property).some(val =>{
+      console.log(val);
+      return typeof val === "string" && val.toLowerCase().includes(searchTerm.toLowerCase())}
+    );
+  }
+  );
+  if (foundProperties.length > 0) {
+    setHeader(res, 200);
+    res.end(JSON.stringify(foundProperties));
+  } else {
+    setHeader(res, 404);
+    res.end(`{ "message": "No properties found with the search term '${searchTerm}'"}`);
+  }
+}
